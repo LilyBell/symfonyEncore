@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Symfony Encore{% endblock %}
+
+{% block body %}
+    <div class="page-content">
+    <p>Navigate to your project directory and create a new Symfony project.</p>
+    <pre><code class="shell">$ cd ~/phpstormprojects && composer create-project symfony/website-skeleton symfonyGrecaptcha && cd symfonyGrecaptcha</code></pre>
+    <p>Once you have your project created the next step will be to add two new folders inside your assets directory one containing app.scss
+        and the other containing app.js. These are the files that encore will use to compile your public assets.</p>
+    <pre><code class="shell">$ mkdir ./assets/css && mkdir ./assets/js</code></pre><br>
+    <pre><code class="shell">$ touch ./assets/css/app.scss && touch ./assets/js/app.js</code></pre>
+    <p>In order for your assets to be compiled properly Encore by default requires this directory structure. Now that
+        we have prepped our application for asset management we can install and configure </p>
+    <pre><code class="shell">$ yarn add @symfony/webpack-encore --dev</code></pre>
+    <pre><code class="shell">$ composer require encore</code></pre>
+    <pre><code class="shell">$ yarn</code></pre>
+    <pre><code class="shell">$ yarn add sass-loader node-sass</code></pre>
+    <p>Next up we ill configure Encore. You will need to uncomment the <code>addEntry</code>, <code>addStyleEntry</code> and <code>enableSassLoader</code> lines.</p>
+    <pre><code class="javascript">
+        // /webpack.config.js
+        const Encore = require('@symfony/webpack-encore');
+
+        Encore
+            // the project directory where compiled assets will be stored
+            .setOutputPath('public/build/')
+            // the public path used by the web server to access the previous directory
+            .setPublicPath('/build')
+            .cleanupOutputBeforeBuild()
+            .enableSourceMaps(!Encore.isProduction())
+            // uncomment to create hashed filenames (e.g. app.abc123.css)
+            // .enableVersioning(Encore.isProduction())
+
+            // uncomment to define the assets of the project
+            .addEntry('js/app', './assets/js/app.js')
+            .addStyleEntry('css/app', './assets/css/app.scss')
+
+            // uncomment if you use Sass/SCSS files
+            .enableSassLoader()
+
+            // uncomment for legacy applications that require $/jQuery as a global variable
+            // .autoProvidejQuery()
+        ;
+
+        module.exports = Encore.getWebpackConfig();
+        </code></pre>
+
+        <p>Once you've done this you can add to <code>app.js</code> and <code>app.scss</code> and then compile them for use in your application.</p>
+
+        <pre><code class="shell">$ yarn run encore dev --watch</code></pre>
+
+        <p>By default this will compile to <code>public/build/js</code> and <code>public/build/css</code> for you to reference in your application.</p>
+
+        <p>This command specifies that you are working in development and to watch the files for changes to recompile when
+        changes are made. You can use the production flag to compile for your prod environment and it will also minify your assets.
+        If you need multiple entry points those can also be configured. This method also works for page specific assets as well.</p>
+
+        <pre><code class="javascript">
+                .addEntry('index', './assets/js/index.js')
+                .addEntry('tutorial', './assets/js/tutorial.js')
+            </code></pre>
+
+        <div class="alert alert-info">It's also very important to
+        remember that you need to create a shared entry for any dependencies to avoid duplication.</div>
+
+        <pre><code class="javascript">
+                .createSharedEntry('path/to/asset', 'asset')
+            </code></pre>
+
+        <p>This will create a <code>vendor.js</code> file for you to include in your templates with all your dependencies.</p>
+        <p>For a more indepth look at Encore click <a href="https://symfony.com/doc/current/frontend.html">here</a>.</p>
+    </div>
+{% endblock %}
